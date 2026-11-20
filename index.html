@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>초등 3학년 국어사전 · 단계별 낱말 찾기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- 단순화된 상단 인터넷 국어사전 헤더 -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand" id="brandHome" role="button" tabindex="0" aria-label="국어사전 처음으로">
+        <span class="brand-badge">국어사전</span>
+        <div class="brand-text">
+          <h1>초등 3학년 국어사전</h1>
+        </div>
+      </div>
+
+      <!-- 통합 검색창 -->
+      <div class="search-area">
+        <div class="search-input-wrap">
+          <div class="search-box">
+            <input
+              type="text"
+              id="searchInput"
+              class="search-input"
+              placeholder="낱말을 입력하세요 (예: 감다, 감았다, 예쁜, 배)"
+              autocomplete="off"
+              aria-label="국어사전 낱말 검색"
+            />
+            <button type="button" id="clearSearchBtn" class="search-clear-btn hidden" aria-label="검색어 지우기">✕</button>
+            <button type="button" id="searchBtn" class="search-submit-btn">검색</button>
+          </div>
+          <ul id="autocompleteList" class="autocomplete-list hidden" role="listbox" aria-label="자동완성 낱말"></ul>
+        </div>
+        <div class="quick-bar" id="quickBar">
+          <span class="quick-label">예시:</span>
+          <button type="button" class="chip-btn" data-quick="감다">감다¹·²·³</button>
+          <button type="button" class="chip-btn" data-quick="감았다">감았다(기본형)</button>
+          <button type="button" class="chip-btn" data-quick="배">배¹·²·³</button>
+          <button type="button" class="chip-btn" data-quick="걷다">걷다¹·²</button>
+          <button type="button" class="chip-btn" data-quick="까닭">까닭</button>
+        </div>
+      </div>
+
+      <!-- 유일한 보조 메뉴: 자음·모음 순서표 -->
+      <button type="button" id="toggleChartBtn" class="btn-chart-toggle" aria-expanded="false">
+        📋 자음·모음 순서표
+      </button>
+    </div>
+
+    <!-- 접이식 공식 자음·모음·받침 순서표 -->
+    <div id="orderChartDrawer" class="chart-drawer hidden">
+      <div class="chart-drawer-inner">
+        <div class="chart-drawer-head">
+          <strong>🔤 대한민국 국어사전 공식 순서표 (자음 19 → 모음 21 → 받침 28)</strong>
+          <button type="button" id="closeChartBtn" class="chart-close-btn">닫기 ✕</button>
+        </div>
+        <div class="chart-line">
+          <span class="chart-tag">자음 (19)</span>
+          <div id="refChoList" class="chart-items"></div>
+        </div>
+        <div class="chart-line">
+          <span class="chart-tag">모음 (21)</span>
+          <div id="refJungList" class="chart-items"></div>
+        </div>
+        <div class="chart-line">
+          <span class="chart-tag">받침 (28)</span>
+          <div id="refJongList" class="chart-items"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- ==================== 국어사전 찾는 알고리즘: 단계 1 → 2 → 3 → 4 ==================== -->
+    <section class="algo-panel" aria-label="국어사전 단계별 찾기 알고리즘">
+      <div class="algo-top-bar">
+        <div class="algo-title-wrap">
+          <h2 class="algo-title">🧭 국어사전에서 낱말 찾는 순서</h2>
+          <span id="algoGuideSentence" class="algo-guide-text">단계 1부터 차례대로 눌러서 낱말을 찾아보세요.</span>
+        </div>
+        <div class="algo-controls">
+          <button type="button" id="replayStepsBtn" class="btn-step-demo hidden" title="현재 낱말을 단계 1부터 차례대로 찾는 과정을 보여줍니다">
+            ▶ 단계별 찾기 시범
+          </button>
+          <button type="button" id="resetStepsBtn" class="btn-step-reset">↺ 처음부터 찾기</button>
+        </div>
+      </div>
+
+      <!-- 준비 단계: 바뀐 말(활용형) → 기본형 자동 안내 -->
+      <div id="baseformNotice" class="baseform-notice hidden" role="status"></div>
+
+      <!-- 4단계 진행 카드 (Stepper) -->
+      <div class="stepper-track" role="tablist" aria-label="국어사전 찾기 4단계">
+        <button type="button" class="step-card" id="stepCard1" data-step="1">
+          <span class="step-num">단계 1</span>
+          <span class="step-name">첫 글자 자음</span>
+          <span class="step-val" id="stepVal1">선택하세요</span>
+        </button>
+        <span class="step-arrow" aria-hidden="true">→</span>
+
+        <button type="button" class="step-card" id="stepCard2" data-step="2">
+          <span class="step-num">단계 2</span>
+          <span class="step-name">첫 글자 모음</span>
+          <span class="step-val" id="stepVal2">대기 중</span>
+        </button>
+        <span class="step-arrow" aria-hidden="true">→</span>
+
+        <button type="button" class="step-card" id="stepCard3" data-step="3">
+          <span class="step-num">단계 3</span>
+          <span class="step-name">첫 글자 받침</span>
+          <span class="step-val" id="stepVal3">대기 중</span>
+        </button>
+        <span class="step-arrow" aria-hidden="true">→</span>
+
+        <button type="button" class="step-card" id="stepCard4" data-step="4">
+          <span class="step-num">단계 4</span>
+          <span class="step-name">둘째 글자 · 낱말</span>
+          <span class="step-val" id="stepVal4">대기 중</span>
+        </button>
+      </div>
+
+      <!-- 단계별 선택 영역 (단계 1 · 단계 2 · 단계 3) -->
+      <div class="step-selectors">
+        <!-- 단계 1: 자음 19자 -->
+        <div class="selector-box" id="selectorBox1">
+          <div class="selector-head">
+            <span class="selector-badge">단계 1</span>
+            <strong>첫 글자의 자음(첫소리) 19자 순서</strong>
+            <span class="selector-tip">쌍자음(ㄲ·ㄸ·ㅃ·ㅆ·ㅉ) 위치에 주의하세요!</span>
+          </div>
+          <div id="choseongBar" class="jamo-bar" role="group" aria-label="단계 1 자음 선택"></div>
+        </div>
+
+        <!-- 단계 2: 모음 21자 -->
+        <div class="selector-box hidden" id="selectorBox2">
+          <div class="selector-head">
+            <span class="selector-badge">단계 2</span>
+            <strong id="step2Heading">첫 글자의 모음(가운뎃소리) 21자 순서</strong>
+            <span class="selector-tip">ㅏ 다음 ㅐ, ㅗ 다음 ㅘ·ㅙ·ㅚ 순서예요!</span>
+          </div>
+          <div id="jungseongBar" class="jamo-bar jamo-bar-jung" role="group" aria-label="단계 2 모음 선택"></div>
+        </div>
+
+        <!-- 단계 3: 받침 28자 -->
+        <div class="selector-box hidden" id="selectorBox3">
+          <div class="selector-head">
+            <span class="selector-badge">단계 3</span>
+            <strong id="step3Heading">첫 글자의 받침(끝소리) 순서</strong>
+            <span class="selector-tip">받침이 없는 글자가 가장 먼저 나와요!</span>
+          </div>
+          <div id="jongseongBar" class="jamo-bar jamo-bar-jong" role="group" aria-label="단계 3 받침 선택"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 사전 2단 본문 (단계 4 낱말 목록 + 인터넷 국어사전 뜻풀이) ==================== -->
+    <section class="dict-workspace" aria-label="국어사전 낱말 목록 및 뜻풀이">
+      <!-- 왼쪽: 단계 4 낱말 목록 -->
+      <aside class="word-list-panel" id="wordListPanel">
+        <div class="word-list-header">
+          <div class="list-title-row">
+            <span class="selector-badge badge-step4">단계 4</span>
+            <strong id="listFilterTitle">전체 낱말</strong>
+          </div>
+          <span id="listCountText" class="count-pill">0개</span>
+        </div>
+        <div id="listOrderHint" class="order-caption">
+          자음(19) → 모음(21) → 받침(28) 공식 순서
+        </div>
+        <ul id="wordList" class="word-list" role="listbox" aria-label="국어사전 낱말 목록"></ul>
+      </aside>
+
+      <!-- 오른쪽: 기존 인터넷 국어사전 표시 형식 그대로 -->
+      <article class="entry-detail-panel" id="entryDetailPanel" aria-live="polite">
+        <!-- JS로 렌더링 -->
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>대한민국 초등학교 3학년 국어 학습활동용 국어사전 · 표준국어대사전 표시 형식 및 자음(19)·모음(21)·받침(28) 공식 순서 준수</p>
+  </footer>
+
+  <script src="hangul.js"></script>
+  <script src="dictionary-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1323 @@
+/* ==========================================================
+   초등 3학년 국어사전 - 단순화된 인터넷 국어사전 + 4단계 찾기 알고리즘
+   ========================================================== */
+:root {
+  --green-main: #03a94d;
+  --green-dark: #077c3c;
+  --green-soft: #eaf8f0;
+  --green-border: #b4e4c7;
+
+  --blue-accent: #2563eb;
+  --blue-soft: #eff6ff;
+  --amber-accent: #d97706;
+  --amber-soft: #fffbeb;
+  --rose-accent: #e11d48;
+  --rose-soft: #fff1f2;
+
+  --bg-page: #f4f7f5;
+  --bg-card: #ffffff;
+  --bg-subtle: #f8faf9;
+
+  --text-main: #1e293b;
+  --text-sub: #475569;
+  --text-muted: #64748b;
+
+  --border-light: #e2e8f0;
+  --border-mid: #cbd5e1;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 6px 20px rgba(15, 23, 42, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Noto Sans KR', 'Malgun Gothic', '맑은 고딕', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input {
+  font-family: inherit;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==================== 단순화된 상단 헤더 ==================== */
+.site-header {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.header-inner {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.brand-badge {
+  background: linear-gradient(135deg, #03c75a 0%, #059646 100%);
+  color: #fff;
+  font-weight: 800;
+  font-size: 14.5px;
+  padding: 7px 11px;
+  border-radius: 9px;
+  box-shadow: 0 2px 6px rgba(3, 169, 77, 0.24);
+}
+
+.brand-text h1 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+/* 검색 영역 */
+.search-area {
+  flex: 1;
+  min-width: 260px;
+}
+
+.search-input-wrap {
+  position: relative;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  border: 2.5px solid var(--green-main);
+  border-radius: 999px;
+  background: #fff;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.search-box:focus-within {
+  box-shadow: 0 0 0 4px rgba(3, 169, 77, 0.14);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 10px 18px;
+  font-size: 16px;
+  color: var(--text-main);
+  background: transparent;
+}
+
+.search-input::placeholder {
+  color: #94a3b8;
+  font-size: 14.5px;
+}
+
+.search-clear-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px 10px;
+}
+
+.search-submit-btn {
+  border: none;
+  background: var(--green-main);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 10px 22px;
+  cursor: pointer;
+}
+
+.search-submit-btn:hover {
+  background: var(--green-dark);
+}
+
+/* 자동완성 */
+.autocomplete-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 12px;
+  right: 12px;
+  background: #fff;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 60;
+}
+
+.autocomplete-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 15px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.autocomplete-item:hover {
+  background: var(--green-soft);
+}
+
+.ac-left {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  min-width: 0;
+}
+
+.ac-word {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.ac-pos {
+  font-size: 12px;
+  color: var(--green-dark);
+  font-weight: 600;
+}
+
+.ac-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 340px;
+}
+
+.ac-tag-base {
+  font-size: 11.5px;
+  background: var(--amber-soft);
+  color: var(--amber-accent);
+  border: 1px solid #fde68a;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.quick-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 7px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.quick-label {
+  font-weight: 600;
+}
+
+.chip-btn {
+  border: 1px solid var(--border-light);
+  background: var(--bg-subtle);
+  color: var(--text-sub);
+  font-size: 12.5px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.14s;
+}
+
+.chip-btn:hover {
+  border-color: var(--green-main);
+  background: var(--green-soft);
+  color: var(--green-dark);
+}
+
+/* 유일한 보조 버튼: 자음·모음 순서표 */
+.btn-chart-toggle {
+  border: 1.5px solid var(--green-border);
+  background: var(--green-soft);
+  color: var(--green-dark);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 9px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all 0.14s;
+}
+
+.btn-chart-toggle:hover,
+.btn-chart-toggle[aria-expanded="true"] {
+  background: var(--green-main);
+  color: #fff;
+  border-color: var(--green-main);
+}
+
+/* 접이식 공식 순서표 */
+.chart-drawer {
+  background: #f9fcfa;
+  border-top: 1px solid var(--green-border);
+}
+
+.chart-drawer-inner {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 12px 20px 14px;
+}
+
+.chart-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: var(--green-dark);
+}
+
+.chart-close-btn {
+  border: 1px solid var(--border-mid);
+  background: #fff;
+  color: var(--text-sub);
+  font-size: 12.5px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.chart-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.chart-line:last-child {
+  margin-bottom: 0;
+}
+
+.chart-tag {
+  width: 78px;
+  flex-shrink: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-sub);
+  padding-top: 3px;
+}
+
+.chart-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ref-cell {
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.ref-cell.double {
+  background: var(--amber-soft);
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+/* ==================== 메인 컨테이너 ==================== */
+.main-container {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 16px 20px 44px;
+}
+
+/* ==================== 4단계 국어사전 찾기 알고리즘 패널 ==================== */
+.algo-panel {
+  background: var(--bg-card);
+  border: 1.5px solid var(--green-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.algo-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.algo-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.algo-title {
+  margin: 0;
+  font-size: 16.5px;
+  font-weight: 800;
+  color: var(--green-dark);
+}
+
+.algo-guide-text {
+  font-size: 14px;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+
+.algo-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-step-demo {
+  border: none;
+  background: var(--blue-accent);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-step-demo:hover {
+  opacity: 0.9;
+}
+
+.btn-step-reset {
+  border: 1px solid var(--border-mid);
+  background: #fff;
+  color: var(--text-sub);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.btn-step-reset:hover {
+  background: #f1f5f9;
+  color: var(--text-main);
+}
+
+/* 기본형 바꾸기 준비 단계 안내 */
+.baseform-notice {
+  background: var(--amber-soft);
+  border: 1.5px solid #fcd34d;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 14.5px;
+  color: #78350f;
+}
+
+.baseform-notice strong {
+  color: #92400e;
+}
+
+/* 4단계 Stepper Track */
+.stepper-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.step-card {
+  flex: 1;
+  border: 2px solid var(--border-light);
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: all 0.18s ease;
+  min-width: 0;
+}
+
+.step-card:hover:not(:disabled) {
+  border-color: var(--green-main);
+}
+
+.step-card:disabled {
+  cursor: default;
+  opacity: 0.58;
+}
+
+.step-num {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: -0.01em;
+}
+
+.step-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-sub);
+}
+
+.step-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 활성 단계 (지금 고르는 단계) */
+.step-card.is-active {
+  border-color: var(--green-main);
+  background: var(--green-soft);
+  box-shadow: 0 0 0 3px rgba(3, 169, 77, 0.14);
+}
+
+.step-card.is-active .step-num {
+  color: var(--green-dark);
+}
+
+.step-card.is-active .step-name {
+  color: var(--text-main);
+}
+
+.step-card.is-active .step-val {
+  color: var(--green-dark);
+}
+
+/* 완료 단계 */
+.step-card.is-done {
+  border-color: #86efac;
+  background: #ffffff;
+}
+
+.step-card.is-done .step-num {
+  color: var(--green-main);
+}
+
+.step-card.is-done .step-val {
+  color: #0f172a;
+}
+
+/* 시범 애니메이션 중 강조 */
+.step-card.is-demo-focus {
+  border-color: var(--blue-accent);
+  background: var(--blue-soft);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+  transform: translateY(-2px);
+}
+
+.step-card.is-demo-focus .step-num,
+.step-card.is-demo-focus .step-val {
+  color: var(--blue-accent);
+}
+
+.step-arrow {
+  color: var(--border-mid);
+  font-weight: 800;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* 단계별 선택 박스 (단계 1 · 2 · 3) */
+.step-selectors {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.selector-box {
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 11px 14px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.selector-box.is-current {
+  background: #f3fbf6;
+  border-color: var(--green-main);
+}
+
+.selector-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.selector-badge {
+  background: var(--green-main);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.selector-badge.badge-step4 {
+  background: var(--blue-accent);
+}
+
+.selector-tip {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.jamo-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.jamo-btn {
+  border: 1px solid var(--border-mid);
+  background: #fff;
+  color: var(--text-main);
+  min-width: 42px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 800;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+  transition: all 0.13s;
+  position: relative;
+}
+
+.jamo-btn .jamo-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.jamo-btn.is-double {
+  background: #fffdf5;
+  border-color: #f3d286;
+}
+
+.jamo-btn.is-double::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--amber-accent);
+}
+
+.jamo-btn:hover {
+  border-color: var(--green-main);
+  background: var(--green-soft);
+  color: var(--green-dark);
+}
+
+.jamo-btn.active {
+  background: var(--green-main);
+  border-color: var(--green-main);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(3, 169, 77, 0.28);
+}
+
+.jamo-btn.active .jamo-sub {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.jamo-btn.empty-jamo {
+  opacity: 0.38;
+  background: #f8fafc;
+}
+
+.jamo-bar-jung .jamo-btn {
+  min-width: 48px;
+}
+
+.jamo-bar-jong .jamo-btn {
+  min-width: 54px;
+  font-size: 13.5px;
+}
+
+/* ==================== 사전 2단 본문 ==================== */
+.dict-workspace {
+  display: grid;
+  grid-template-columns: 330px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+/* 왼쪽: 단계 4 낱말 목록 */
+.word-list-panel {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 700px;
+  transition: border-color 0.2s;
+}
+
+.word-list-panel.is-step4-focus {
+  border-color: var(--blue-accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.word-list-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--bg-subtle);
+}
+
+.list-title-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14.5px;
+}
+
+.count-pill {
+  background: var(--green-soft);
+  color: var(--green-dark);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.order-caption {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 6px 14px;
+  background: #fcfdfd;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.word-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.word-list-item {
+  padding: 11px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.word-list-item:hover {
+  background: #f8fafc;
+}
+
+.word-list-item.active {
+  background: var(--green-soft);
+  border-left: 4px solid var(--green-main);
+  padding-left: 10px;
+}
+
+.wli-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wli-head {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.wli-word {
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.wli-word sup {
+  color: var(--blue-accent);
+  font-size: 11px;
+  font-weight: 800;
+  margin-left: 1px;
+}
+
+.wli-pos {
+  font-size: 12px;
+  color: var(--green-dark);
+  font-weight: 600;
+}
+
+.wli-step4-hint {
+  font-size: 11.5px;
+  color: var(--blue-accent);
+  background: var(--blue-soft);
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.wli-preview {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.word-list-empty {
+  padding: 36px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ==================== 오른쪽: 기존 인터넷 국어사전 상세 보기 ==================== */
+.entry-detail-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 26px 28px;
+  min-height: 520px;
+}
+
+.dict-entry-header {
+  border-bottom: 2px solid var(--text-main);
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+}
+
+.dict-head-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.dict-head-main {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dict-headword {
+  margin: 0;
+  font-size: 33px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.dict-headword sup {
+  font-size: 16px;
+  color: var(--blue-accent);
+  font-weight: 800;
+  margin-left: 2px;
+}
+
+.dict-hanja {
+  font-size: 18px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.btn-speak {
+  border: 1px solid var(--border-mid);
+  background: #fff;
+  color: var(--text-main);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-speak:hover {
+  border-color: var(--blue-accent);
+  color: var(--blue-accent);
+  background: var(--blue-soft);
+}
+
+.dict-meta-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 10px;
+  font-size: 15.5px;
+}
+
+.dict-pron {
+  color: var(--blue-accent);
+  font-weight: 600;
+}
+
+.dict-conjugation {
+  color: var(--text-sub);
+  font-size: 14.5px;
+}
+
+.dict-conjugation strong {
+  font-size: 12.5px;
+  background: #f1f5f9;
+  color: var(--text-sub);
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-right: 5px;
+}
+
+/* 동음이의어 바로가기 */
+.homonym-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--blue-soft);
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+}
+
+.homonym-label {
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.homonym-btn {
+  border: 1px solid #93c5fd;
+  background: #fff;
+  color: #1e3a8a;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.homonym-btn.active {
+  background: var(--blue-accent);
+  color: #fff;
+  border-color: var(--blue-accent);
+}
+
+/* 품사 및 뜻풀이 (표준국어대사전 형식) */
+.dict-pos-section {
+  margin-bottom: 18px;
+}
+
+.dict-pos-badge {
+  display: inline-block;
+  font-size: 16.5px;
+  font-weight: 800;
+  color: var(--green-dark);
+  margin-bottom: 12px;
+}
+
+.sense-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sense-item {
+  margin-bottom: 15px;
+}
+
+.sense-meaning {
+  font-size: 17px;
+  color: var(--text-main);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.sense-num {
+  font-weight: 800;
+  color: var(--green-dark);
+  margin-right: 6px;
+}
+
+.example-list {
+  list-style: none;
+  margin: 7px 0 0 26px;
+  padding: 0;
+}
+
+.example-item {
+  font-size: 15px;
+  color: var(--text-sub);
+  margin-bottom: 5px;
+}
+
+.example-mark {
+  color: var(--green-main);
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+.example-highlight {
+  color: #0f172a;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: #86efac;
+  text-underline-offset: 3px;
+}
+
+/* 비슷한말 / 반대말 / 참고 */
+.dict-relations {
+  border-top: 1px solid var(--border-light);
+  padding-top: 14px;
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rel-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.rel-label {
+  font-weight: 700;
+  font-size: 12.5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-right: 4px;
+}
+
+.rel-label.syn {
+  background: var(--green-soft);
+  color: var(--green-dark);
+}
+
+.rel-label.ant {
+  background: var(--rose-soft);
+  color: var(--rose-accent);
+}
+
+.rel-chip {
+  border: 1px solid var(--border-mid);
+  background: #fff;
+  color: var(--text-main);
+  font-size: 13.5px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.rel-chip.clickable:hover {
+  border-color: var(--green-main);
+  color: var(--green-dark);
+  background: var(--green-soft);
+}
+
+.rel-chip.plain {
+  cursor: default;
+  border-style: dashed;
+  color: var(--text-muted);
+}
+
+.dict-note-box {
+  margin-top: 14px;
+  background: #f8fafc;
+  border-left: 4px solid var(--green-main);
+  padding: 10px 14px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 14px;
+  color: var(--text-sub);
+}
+
+.dict-note-box strong {
+  color: var(--green-dark);
+  margin-right: 6px;
+}
+
+/* 이 낱말 찾는 알고리즘 요약 카드 */
+.algo-summary-card {
+  margin-top: 22px;
+  background: linear-gradient(180deg, #f9fcfa 0%, #f1f7f3 100%);
+  border: 1px solid var(--green-border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+}
+
+.algo-summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.algo-summary-head h3 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--green-dark);
+}
+
+.order-position-badge {
+  font-size: 12.5px;
+  font-weight: 700;
+  background: #fff;
+  border: 1px solid var(--green-border);
+  color: var(--green-dark);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.algo-step-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.algo-step-list li {
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.algo-step-list li.demo-highlight {
+  border-color: var(--blue-accent);
+  background: var(--blue-soft);
+}
+
+.algo-step-tag {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--green-dark);
+  background: var(--green-soft);
+  padding: 2px 7px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.neighbor-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.neighbor-btn {
+  border: 1px solid var(--border-mid);
+  background: #fff;
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.14s;
+}
+
+.neighbor-btn.next {
+  text-align: right;
+}
+
+.neighbor-btn:hover:not(:disabled) {
+  border-color: var(--green-main);
+  background: var(--green-soft);
+}
+
+.neighbor-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.neighbor-dir {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.neighbor-word {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* 미등록 낱말 검색 시 안내 카드 */
+.not-found-box {
+  padding: 8px 0;
+}
+
+.not-found-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  color: var(--text-main);
+}
+
+.not-found-desc {
+  margin: 0 0 16px;
+  font-size: 15px;
+  color: var(--text-sub);
+}
+
+.between-box {
+  background: var(--amber-soft);
+  border: 1.5px solid #fcd34d;
+  border-radius: var(--radius-md);
+  padding: 12px 15px;
+  margin-bottom: 16px;
+  font-size: 14.5px;
+  color: #78350f;
+}
+
+.ext-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.ext-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  background: var(--green-main);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 9px 16px;
+  border-radius: 9px;
+}
+
+.ext-link-btn.secondary {
+  background: #fff;
+  color: var(--green-dark);
+  border: 1.5px solid var(--green-main);
+}
+
+.site-footer {
+  text-align: center;
+  padding: 16px 20px 28px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* ==================== 반응형 ==================== */
+@media (max-width: 920px) {
+  .dict-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .word-list-panel {
+    max-height: 290px;
+  }
+
+  .stepper-track {
+    flex-wrap: wrap;
+  }
+
+  .step-card {
+    flex: 1 1 44%;
+  }
+
+  .step-arrow {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .header-inner {
+    padding: 10px 14px;
+  }
+
+  .main-container {
+    padding: 12px 12px 30px;
+  }
+
+  .entry-detail-panel {
+    padding: 18px 16px;
+  }
+
+  .dict-headword {
+    font-size: 27px;
+  }
+
+  .neighbor-nav {
+    grid-template-columns: 1fr;
+  }
+}
